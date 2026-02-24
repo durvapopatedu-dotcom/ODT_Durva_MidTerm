@@ -1,0 +1,133 @@
+This project was successful.
+Below is the code :-
+
+from machine import Pin
+import neopixel
+import random
+import time
+# IR Sensor
+IR = Pin(15, Pin.IN)
+# Push Buttons (INPUT_PULLUP)
+B1 = Pin(4, Pin.IN, Pin.PULL_UP)    # Red
+B2 = Pin(5, Pin.IN, Pin.PULL_UP)    # Green
+B3 = Pin(18, Pin.IN, Pin.PULL_UP)   # Blue
+B4 = Pin(19, Pin.IN, Pin.PULL_UP)   # Yellow
+# NeoPixel
+neo = neopixel.NeoPixel(Pin(14), 1)
+# Staring the game
+print("Wave hand to start")
+# Wait for IR detection
+while IR.value() == 1:
+    time.sleep(0.1)
+time.sleep(1)
+print("Game Starting!")
+# Total no. of rounds
+rounds = 5
+for round_no in range(rounds):
+    print("Round", round_no + 1)
+    # Speed increases each round
+    if round_no == 0:
+        speed = 0.8
+    elif round_no == 1:
+        speed = 0.7
+    elif round_no == 2:
+        speed = 0.6
+    elif round_no == 3:
+        speed = 0.5
+    else:
+        speed = 0.4
+    S = []
+    # Show random color pattern
+    for i in range(4):
+        number = random.randrange(4)
+        S.append(number)
+        if number == 0:
+            neo[0] = (255, 0, 0)
+        elif number == 1:
+            neo[0] = (0, 255, 0)
+        elif number == 2:
+            neo[0] = (0, 0, 255)
+        else:
+            neo[0] = (255, 255, 0)
+        neo.write()
+        time.sleep(speed)
+        neo[0] = (0, 0, 0)
+        neo.write()
+        time.sleep(0.3)
+    print("Your turn!")
+    player = []
+    C = 0
+    while C < 4:
+        # RED BUTTON
+        if B1.value() == 0:
+            print("Red pressed")
+            player.append(0)
+            neo[0] = (255, 0, 0)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            C = C + 1
+            while B1.value() == 0:
+                time.sleep(0.01)
+        # GREEN BUTTON
+        elif B2.value() == 0:
+            print("Green pressed")
+            player.append(1)
+            neo[0] = (0, 255, 0)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            C = C + 1
+            while B2.value() == 0:
+                time.sleep(0.01)
+        # BLUE BUTTON
+        elif B3.value() == 0:
+            print("Blue pressed")
+            player.append(2)
+            neo[0] = (0, 0, 255)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            C = C + 1
+
+            while B3.value() == 0:
+                time.sleep(0.01)
+        # YELLOW BUTTON
+        elif B4.value() == 0:
+            print("Yellow pressed")
+            player.append(3)
+            neo[0] = (255, 255, 0)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            C = C + 1
+            while B4.value() == 0:
+                time.sleep(0.01)
+        time.sleep(0.01)
+    # Check if correct
+    if player == sequence:
+        print("Correct!")
+        # Green flash for success
+        for i in range(3):
+            neo[0] = (0, 255, 0)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            time.sleep(0.3)
+    else:
+        print("Wrong! Game Over!")
+        # Red flash for fail
+        for i in range(5):
+            neo[0] = (255, 0, 0)
+            neo.write()
+            time.sleep(0.3)
+            neo[0] = (0, 0, 0)
+            neo.write()
+            time.sleep(0.3)
+        break
+print("Game Finished")
