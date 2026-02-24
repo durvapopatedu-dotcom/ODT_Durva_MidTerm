@@ -1,0 +1,116 @@
+This was the first project and it was not successful due to loose connections and a mix up of jumper wires.
+The following below is the code:-
+
+from machine import Pin
+import time
+import neopixel
+import random
+# Pins for the green LEDs
+G1 = Pin(15, Pin.OUT)
+G2 = Pin(4, Pin.OUT)
+G3 = Pin(16, Pin.OUT)
+G4 = Pin(17, Pin.OUT)
+G5 = Pin(5, Pin.OUT)
+G6 = Pin(18, Pin.OUT)
+G7 = Pin(19, Pin.OUT)
+G8 = Pin(21, Pin.OUT)
+G9 = Pin(22, Pin.OUT)
+# Pins for the red LEDs
+R1 = Pin(13, Pin.OUT)
+R2 = Pin(12, Pin.OUT)
+R3 = Pin(14, Pin.OUT)
+R4 = Pin(27, Pin.OUT)
+R5 = Pin(26, Pin.OUT)
+R6 = Pin(25, Pin.OUT)
+R7 = Pin(33, Pin.OUT)
+R8 = Pin(32, Pin.OUT) 
+R9 = Pin(23, Pin.OUT)
+# Creating a list for the green LEDs and the red LEDs
+GL = [G1, G2, G3, G4, G5, G6, G7, G8, G9]
+RL = [R1, R2, R3, R4, R5, R6, R7, R8, R9]
+# Push Buttons
+PBS = Pin(34, Pin.IN, Pin.PULL_UP)
+PBN = Pin(36, Pin.IN, Pin.PULL_UP)
+# Neopixel
+neo = neopixel.NeoPixel(Pin(2), 16) # GPIO 1 - TX0 in ESP32
+# Assigning 0 (starting position) to like, the select option thingy or the cursor i guess
+box = 0
+# Tic Tac Toe board values
+ttt = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+# If empty = 0
+# If player's picks (only if empty) = 1
+# If the bot plays (random generations) = 2
+# Turning off all green LEDs and red LEDs in the 9 boxes
+for z in range(9):
+    GL[z].off()
+    RL[z].off()
+# If the player selects a box - green LED lights up, if the bot selects - red LED lights up
+for z in range(9):
+    if ttt[z] == 1:
+        GL[z].on()
+    elif ttt[z] == 2:
+        RL[z].on()
+# Telling which box the player is on (lowkey only if the box is empty)
+if ttt[box] == 0:
+    GL[box].on()
+# Next button pressed - move to next box
+if PBN.value() == 0:
+    time.sleep(0.2)
+    box = box + 1
+    if box > 8:
+            box = 0
+# Select button pressed - counts as the player's move
+if PBS.value() == 0:
+    time.sleep(0.2)
+    # If current box is taken, move to next one
+    if ttt[box] != 0:
+        print("Oopsie! Box taken! Moving to the next box...")
+        box = box + 1
+        if box > 8:
+            box = 0   
+    # If the (new) box is empty, play there
+    if ttt[box] == 0:
+        ttt[box] = 1
+        GL[box].on()
+        print("Player has made a move.")
+        # Bot's move after the player picks a box
+        if 0 in ttt:
+            while True:
+                # Randomly selects a position
+                botbox = random.randrange(9)
+                # Checking if the position is taken
+                if ttt[botbox] == 0:
+                    # Bot selects that box
+                    ttt[botbox] = 2
+                    RL[botbox].on()
+                    print("Bot has made a move.")
+                    break
+# Checking the win conditions with all the possible winning combos
+wins = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+for z in wins:
+    # Checking if the player has won
+    if ttt[z[0]] == 1 and ttt[z[1]] == 1 and ttt[z[2]] == 1:
+        print("Yayyy! Player has won!")
+        for z in range(5):
+            # Player has won so the neopixels turn green.
+            for x in range(16):
+                neo[x] = (0, 255, 0)
+            neo.write()
+            time.sleep(5)
+            for b in range(16):
+                neo[b] = (0, 0, 0)
+            neo.write()
+            time.sleep(1)
+    # Checking if the bot has won
+    if ttt[z[0]] == 2 and ttt[z[1]] == 2 and ttt[z[2]] == 2:
+        print("Oh no! Player has lost :(, Better luck next time...")
+        for z in range(5):
+            # Player has lost so the neopixels turn red.
+            for x in range(16):
+                neo[x] = (255, 0, 0)
+            neo.write()
+            time.sleep(5)
+            for b in range(16):
+                neo[b] = (0, 0, 0)
+            neo.write()
+            time.sleep(1)
